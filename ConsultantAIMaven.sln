@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33627.172
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Servicios", "Servicios", "{66E1C849-963B-4E76-BEED-989DB5697591}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logica", "Logica", "{B148AFD0-445B-4804-A993-DABA614CF562}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogicaNegocioServicio", "LogicaNegocioServicio\LogicaNegocioServicio.csproj", "{D626A222-E008-45A7-8F6A-C6B7389526EB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AdminConexion", "AdminConexion", "{47BF54D9-A825-443E-8FD9-98FAA189AA25}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectionManagement", "ConnectionManagement\ConnectionManagement.csproj", "{51865EC6-37AD-4250-9899-2DAA3536B020}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{618B139B-2E41-46BE-A197-909AEBA2DE66}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiConsultantAIMaven", "ApiConsultantAIMaven\ApiConsultantAIMaven.csproj", "{A40EA594-EC50-4E9C-85E0-1CADB101E225}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ConsultantAIMavenSharedModel", "ConsultantAIMavenSharedModel\ConsultantAIMavenSharedModel.shproj", "{91F8F801-034C-42A5-B34D-9A4461F147AD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D626A222-E008-45A7-8F6A-C6B7389526EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D626A222-E008-45A7-8F6A-C6B7389526EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D626A222-E008-45A7-8F6A-C6B7389526EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D626A222-E008-45A7-8F6A-C6B7389526EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51865EC6-37AD-4250-9899-2DAA3536B020}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51865EC6-37AD-4250-9899-2DAA3536B020}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51865EC6-37AD-4250-9899-2DAA3536B020}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51865EC6-37AD-4250-9899-2DAA3536B020}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A40EA594-EC50-4E9C-85E0-1CADB101E225}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A40EA594-EC50-4E9C-85E0-1CADB101E225}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A40EA594-EC50-4E9C-85E0-1CADB101E225}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A40EA594-EC50-4E9C-85E0-1CADB101E225}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D626A222-E008-45A7-8F6A-C6B7389526EB} = {B148AFD0-445B-4804-A993-DABA614CF562}
+		{51865EC6-37AD-4250-9899-2DAA3536B020} = {47BF54D9-A825-443E-8FD9-98FAA189AA25}
+		{A40EA594-EC50-4E9C-85E0-1CADB101E225} = {66E1C849-963B-4E76-BEED-989DB5697591}
+		{91F8F801-034C-42A5-B34D-9A4461F147AD} = {618B139B-2E41-46BE-A197-909AEBA2DE66}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {61F7FB11-1E47-470C-91E2-47F8143E1572}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		ConsultantAIMavenSharedModel\EntregasLogyTechSharedModel.projitems*{91f8f801-034c-42a5-b34d-9a4461f147ad}*SharedItemsImports = 13
+		ConsultantAIMavenSharedModel\EntregasLogyTechSharedModel.projitems*{d626a222-e008-45a7-8f6a-c6b7389526eb}*SharedItemsImports = 5
+	EndGlobalSection
+EndGlobal

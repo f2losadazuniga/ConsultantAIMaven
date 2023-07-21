@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>91f8f801-034c-42a5-b34d-9a4461f147ad</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>EntregasLogyTechSharedModel</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Comunes\ConvertirObjetoListToDataTable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Comunes\NotificacionError.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Comunes\RespuestaServicio.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Perfil\Perfiles.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Perfil\PerfilInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Perfil\PerfilNew.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Perfil\UsuarioPerfil.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Usuarios\CambioClaveUsuario.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Usuarios\userInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Usuarios\Users.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Usuarios\Usuario.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Usuarios\UsuarioLogin.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Usuarios\UsuariosMasivos.cs" />
+  </ItemGroup>
+</Project>

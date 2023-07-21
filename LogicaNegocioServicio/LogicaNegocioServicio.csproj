@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="AutorizacionIngreso\**" />
+    <Compile Remove="Autorizacion\**" />
+    <Compile Remove="Contexts\**" />
+    <Compile Remove="Empresas\**" />
+    <Compile Remove="Ingresos\**" />
+    <Compile Remove="Marcas\**" />
+    <Compile Remove="Models\**" />
+    <EmbeddedResource Remove="AutorizacionIngreso\**" />
+    <EmbeddedResource Remove="Autorizacion\**" />
+    <EmbeddedResource Remove="Contexts\**" />
+    <EmbeddedResource Remove="Empresas\**" />
+    <EmbeddedResource Remove="Ingresos\**" />
+    <EmbeddedResource Remove="Marcas\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="AutorizacionIngreso\**" />
+    <None Remove="Autorizacion\**" />
+    <None Remove="Contexts\**" />
+    <None Remove="Empresas\**" />
+    <None Remove="Ingresos\**" />
+    <None Remove="Marcas\**" />
+    <None Remove="Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Models\ApiRestRespuesta.cs" />
+    <Compile Include="Models\MasivApiResponse.cs" />
+    <Compile Include="Models\SmsRequestInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.16.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.16" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConnectionManagement\ConnectionManagement.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\ConsultantAIMavenSharedModel\EntregasLogyTechSharedModel.projitems" Label="Shared" />
+
+
+</Project>
