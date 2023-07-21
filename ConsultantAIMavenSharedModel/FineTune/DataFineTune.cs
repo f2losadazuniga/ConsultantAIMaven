@@ -7,10 +7,13 @@ namespace EntregasLogyTechSharedModel.FineTune
 {
     public class DataFineTune
     {
-        [Required(ErrorMessage = "El id Perfil es obligatorio")]
+        [Required(ErrorMessage = "Prompt required")]
         public string Prompt { get; set; }
-        [Required(ErrorMessage = "El id Perfil es obligatorio")]
+
+        [Required(ErrorMessage = "Completion required")]
         public string Completion { get; set; }
+
+        public int IdUsuario { get; set; }
       
         public DataFineTune()
         {

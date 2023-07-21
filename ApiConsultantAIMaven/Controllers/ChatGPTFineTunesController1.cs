@@ -11,6 +11,8 @@ using ConsultantAIMavenSharedModel.Usuarios;
 using LogicaNegocioServicio.Usuarios;
 using System.Collections.Generic;
 using EntregasLogyTechSharedModel.FineTune;
+using LogicaNegocioServicio.FineTunes;
+using ConsultantAIMavenSharedModel.Comunes;
 
 namespace ApiConsultantAIMaven.Controllers
 {
@@ -24,9 +26,9 @@ namespace ApiConsultantAIMaven.Controllers
             this._ConnectionString = Configuration;
         }
 
-        [HttpGet("GetFineTunes/{Id}")]
+        [HttpGet("GetFineTuneId/{Id}")]
         [AllowAnonymous]
-        public async Task<ActionResult<AllFineTune>> GetFineTunes(Int32 Id)
+        public async Task<ActionResult<AllFineTune>> GetFineTuneId(Int32 Id)
         {
             try
             {
@@ -35,9 +37,9 @@ namespace ApiConsultantAIMaven.Controllers
                     return BadRequest(ModelState);
                 }
 
-                List<Users> resultado = new List<Users>();
-                UsersDal mnu = new UsersDal(_ConnectionString.GetConnectionString("DefaultConnection"));
-                resultado = await mnu.GetAllUsers();
+                List<AllFineTune> resultado = new List<AllFineTune>();
+                FineTunesDal ftd = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
+                resultado = await ftd.GetFineTuneId(Id);
                 return Ok(resultado);
 
             }
@@ -54,9 +56,9 @@ namespace ApiConsultantAIMaven.Controllers
         }
 
 
-        [HttpGet("GetFineTunesAll")]
+        [HttpGet("GetAllFineTunes")]
         [AllowAnonymous]
-        public async Task<ActionResult<List<AllFineTune>>> GetFineTunesAll()
+        public async Task<ActionResult<List<AllFineTune>>> GetAllFineTunes()
         {
             try
             {
@@ -65,9 +67,9 @@ namespace ApiConsultantAIMaven.Controllers
                     return BadRequest(ModelState);
                 }
 
-                List<Users> resultado = new List<Users>();
-                UsersDal mnu = new UsersDal(_ConnectionString.GetConnectionString("DefaultConnection"));
-                resultado = await mnu.GetAllUsers();
+                List<AllFineTune> resultado = new List<AllFineTune>();
+                FineTunesDal mnu = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
+                resultado = await mnu.GetAllFineTunes();
                 return Ok(resultado);
 
             }
@@ -85,7 +87,7 @@ namespace ApiConsultantAIMaven.Controllers
 
         [HttpPost("PostFineTunes")]
         [AllowAnonymous]
-        public async Task<ActionResult> PostFineTunes([FromBody] DataFineTune FineTune)
+        public async Task<ActionResult> PostFineTunes([FromBody] List<DataFineTune> FineTune)
         {
             try
             {
@@ -94,9 +96,9 @@ namespace ApiConsultantAIMaven.Controllers
                     return BadRequest(ModelState);
                 }
 
-                List<Users> resultado = new List<Users>();
-                UsersDal mnu = new UsersDal(_ConnectionString.GetConnectionString("DefaultConnection"));
-                resultado = await mnu.GetAllUsers();
+                List<RespuestaServicio> resultado = new List<RespuestaServicio>();
+                FineTunesDal ftd = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
+                resultado = await ftd.InsertAllFineTunes(FineTune);
                 return Ok(resultado);
 
             }

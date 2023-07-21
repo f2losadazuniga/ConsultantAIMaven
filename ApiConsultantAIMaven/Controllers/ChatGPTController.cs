@@ -30,10 +30,10 @@ namespace ApiConsultantAIMaven.Controllers
             try
             {
                 string respuestas = string.Empty;
-                var openai = new OpenAIAPI("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");
+                var openai = new OpenAIAPI("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");
                 CompletionRequest completion = new CompletionRequest();
                 completion.Prompt = query;
-                completion.Model = OpenAI_API.Models.Model.DavinciText;
+                completion.Model = OpenAI_API.Models.Model.AdaText;
 
                 var respuesta = openai.Completions.CreateCompletionAsync(completion);
                 foreach (var complet in respuesta.Result.Completions)
