@@ -5,12 +5,12 @@ using System.Text;
 
 namespace EntregasLogyTechSharedModel.FineTune
 {
-    internal class DataFineTune
+    public class DataFineTune
     {
         [Required(ErrorMessage = "El id Perfil es obligatorio")]
         public string Prompt { get; set; }
         [Required(ErrorMessage = "El id Perfil es obligatorio")]
-        public string completion { get; set; }
+        public string Completion { get; set; }
       
         public DataFineTune()
         {

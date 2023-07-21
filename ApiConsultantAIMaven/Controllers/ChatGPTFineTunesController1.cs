@@ -10,6 +10,7 @@ using System;
 using ConsultantAIMavenSharedModel.Usuarios;
 using LogicaNegocioServicio.Usuarios;
 using System.Collections.Generic;
+using EntregasLogyTechSharedModel.FineTune;
 
 namespace ApiConsultantAIMaven.Controllers
 {
@@ -24,7 +25,7 @@ namespace ApiConsultantAIMaven.Controllers
         }
         [HttpGet("GetFineTunes")]
         [AllowAnonymous]
-        public async Task<ActionResult<>> GetFineTunes()
+        public async Task<ActionResult> GetFineTunes()
         {
             try
             {
@@ -36,7 +37,36 @@ namespace ApiConsultantAIMaven.Controllers
                 List<Users> resultado = new List<Users>();
                 UsersDal mnu = new UsersDal(_ConnectionString.GetConnectionString("DefaultConnection"));
                 resultado = await mnu.GetAllUsers();
-                return resultado;
+                return Ok(resultado);
+
+            }
+            catch (Exception ex)
+            {
+                var emex = new ErrorDetails()
+                {
+                    StatusCode = 400,
+                    Message = "Error:  " + ex.Message.ToString()
+                };
+                return BadRequest(new JsonResult(emex));
+            }
+
+        }
+
+        [HttpPost("PostFineTunes")]
+        [AllowAnonymous]
+        public async Task<ActionResult> PostFineTunes([FromBody] DataFineTune FineTune)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                List<Users> resultado = new List<Users>();
+                UsersDal mnu = new UsersDal(_ConnectionString.GetConnectionString("DefaultConnection"));
+                resultado = await mnu.GetAllUsers();
+                return Ok(resultado);
 
             }
             catch (Exception ex)
