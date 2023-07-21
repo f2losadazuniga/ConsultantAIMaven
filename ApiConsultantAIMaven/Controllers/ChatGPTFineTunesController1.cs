@@ -23,9 +23,40 @@ namespace ApiConsultantAIMaven.Controllers
         {
             this._ConnectionString = Configuration;
         }
-        [HttpGet("GetFineTunes")]
+
+        [HttpGet("GetFineTunes/{Id}")]
         [AllowAnonymous]
-        public async Task<ActionResult> GetFineTunes()
+        public async Task<ActionResult<AllFineTune>> GetFineTunes(Int32 Id)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                List<Users> resultado = new List<Users>();
+                UsersDal mnu = new UsersDal(_ConnectionString.GetConnectionString("DefaultConnection"));
+                resultado = await mnu.GetAllUsers();
+                return Ok(resultado);
+
+            }
+            catch (Exception ex)
+            {
+                var emex = new ErrorDetails()
+                {
+                    StatusCode = 400,
+                    Message = "Error:  " + ex.Message.ToString()
+                };
+                return BadRequest(new JsonResult(emex));
+            }
+
+        }
+
+
+        [HttpGet("GetFineTunesAll")]
+        [AllowAnonymous]
+        public async Task<ActionResult<List<AllFineTune>>> GetFineTunesAll()
         {
             try
             {
