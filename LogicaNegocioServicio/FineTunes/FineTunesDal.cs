@@ -58,6 +58,44 @@ namespace LogicaNegocioServicio.FineTunes
             return resultado;
         }
 
+        public async Task<RespuestaServicio> DeleteFineTuneId(int Id)
+        {
+            RespuestaServicio resultado = new RespuestaServicio();
+            Connection db = new Connection(ConectionString);
+            db.TiempoEsperaComando = 0;
+            try
+            {
+                db.SQLParametros.Clear();
+                db.TiempoEsperaComando = 0;
+                db.IniciarTransaccion();
+                db.SQLParametros.Add("@Id", SqlDbType.Int).Value = Id;
+                db.SQLParametros.Add("@Mensaje", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
+                db.SQLParametros.Add("@returnValue", SqlDbType.SmallInt).Direction = ParameterDirection.ReturnValue;
+                await db.EjecutarNonQueryAsync("DeleteFineTuneId", CommandType.StoredProcedure);
+                resultado.Codigo = db.SQLParametros["@returnValue"].Value.ToString();
+                resultado.Mensaje = db.SQLParametros["@Mensaje"].Value.ToString();
+                if (resultado.Codigo == "200")
+                {
+                    db.ConfirmarTransaccion();
+                }
+                else
+                {
+                    db.AbortarTransaccion();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Se generó un error al consultar los FineTunes: " + ex.Message);
+            }
+            finally { }
+            if (db != null)
+            {
+                db.Dispose();
+            }
+
+            return resultado;
+        }
+
         public async Task<List<AllFineTune>> GetAllFineTunes()
         {
             List<AllFineTune> resultado = new List<AllFineTune>();
@@ -94,6 +132,41 @@ namespace LogicaNegocioServicio.FineTunes
             return resultado;
         }
 
+        public async Task<List<ModelJsonL>> GetAllFineTunesToTraining()
+        {
+            List<ModelJsonL> resultado = new List<ModelJsonL>();
+            Connection db = new Connection(ConectionString);
+            db.TiempoEsperaComando = 0;
+            try
+            {
+                db.SQLParametros.Clear();
+                db.TiempoEsperaComando = 0;
+                var reader = await db.EjecutarReaderAsync("GetAllFineTunes", CommandType.StoredProcedure);
+                if (reader != null)
+                {
+                    while (reader.Read())
+                    {
+                        var fineTunes = new ModelJsonL();
+
+                        if (!Convert.IsDBNull(reader["Prompt"])) { fineTunes.prompt = reader["Prompt"].ToString(); }
+                        if (!Convert.IsDBNull(reader["Completion"])) { fineTunes.completion = reader["Completion"].ToString(); }
+                        resultado.Add(fineTunes);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Se genero un error al consultar los usuarios: " + ex.Message);
+            }
+            finally { }
+            if (db != null)
+            {
+                db.Dispose();
+            }
+
+            return resultado;
+        }
+
         public async Task<List<RespuestaServicio>> InsertAllFineTunes(List<DataFineTune> FineTunes)
         {
             Connection db = new Connection(ConectionString);
@@ -110,6 +183,54 @@ namespace LogicaNegocioServicio.FineTunes
                 db.SQLParametros.Add(new SqlParameter("@FineTunesList", dtFineTunes));
 
                 var reader = await db.EjecutarReaderAsync("InsertAllFineTunes", CommandType.StoredProcedure);
+                if (reader != null)
+                {
+                    //while (reader.Read())
+                    //{
+                    //    RespuestaServicio respuestaServicio = new RespuestaServicio();
+                    //    if (!Convert.IsDBNull(reader["Fila"])) { respuestaServicio.Codigo = reader["Fila"].ToString(); }
+                    //    if (!Convert.IsDBNull(reader["Descripcion"])) { respuestaServicio.Mensaje = reader["Descripcion"].ToString(); }
+                    //    resultado.Add(respuestaServicio);
+                    //}
+                }
+
+                reader.CloseAsync();
+                if (resultado.Count == 0)
+                {
+                    db.ConfirmarTransaccion();
+                }
+                else
+                {
+                    db.AbortarTransaccion();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Se genero un error al insertar el usuario: " + ex.Message);
+            }
+            finally { }
+            if (db != null)
+            {
+                db.Dispose();
+            }
+
+            return resultado;
+        }
+
+        public async Task<List<RespuestaServicio>> RegisterLogTrainings(string TrainingId)
+        {
+            Connection db = new Connection(ConectionString);
+            List<RespuestaServicio> resultado = new List<RespuestaServicio>();
+            DataTable dtFineTunes = new DataTable();
+            db.TiempoEsperaComando = 0;
+            try
+            {
+                db.SQLParametros.Clear();
+                db.TiempoEsperaComando = 0;
+                db.IniciarTransaccion();
+
+                db.SQLParametros.Add(new SqlParameter("@TrainingId", TrainingId));
+                var reader = await db.EjecutarReaderAsync("RegisterLogTrainings", CommandType.StoredProcedure);
                 if (reader != null)
                 {
                     //while (reader.Read())

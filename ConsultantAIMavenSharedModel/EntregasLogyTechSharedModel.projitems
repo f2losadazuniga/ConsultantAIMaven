@@ -14,6 +14,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Comunes\RespuestaServicio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FineTune\AllFineTune.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FineTune\DataFineTune.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FineTune\FineTuneResponseModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FineTune\ModelJsonL.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Perfil\Perfiles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Perfil\PerfilInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Perfil\PerfilNew.cs" />
