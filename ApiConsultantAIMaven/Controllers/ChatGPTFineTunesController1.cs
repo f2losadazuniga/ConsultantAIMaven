@@ -29,9 +29,12 @@ namespace ApiConsultantAIMaven.Controllers
     public class ChatGPTFineTunesController1 : ControllerBase
     {
         private readonly IConfiguration _ConnectionString;
+        public string apiKey = string.Empty;
+
         public ChatGPTFineTunesController1(IConfiguration Configuration)
         {
             this._ConnectionString = Configuration;
+            apiKey = _ConnectionString.GetSection("ApiKey:key").Value;
         }
 
         [HttpGet("GetFineTuneId/{Id}")]
@@ -77,6 +80,76 @@ namespace ApiConsultantAIMaven.Controllers
                 RespuestaServicio resultado = new RespuestaServicio();
                 FineTunesDal ftd = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
                 resultado = await ftd.DeleteFineTuneId(Id);
+                return Ok(resultado);
+
+            }
+            catch (Exception ex)
+            {
+                var emex = new ErrorDetails()
+                {
+                    StatusCode = 400,
+                    Message = "Error:  " + ex.Message.ToString()
+                };
+                return BadRequest(new JsonResult(emex));
+            }
+
+        }
+
+        [HttpPost("DeleteFineTuneApi")]
+        [AllowAnonymous]
+        public async Task<ActionResult<RespuestaServicio>> DeleteFineTuneApi()
+        {
+            string Model = string.Empty;
+            RespuestaServicio respuestaServicio = new RespuestaServicio();
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                Root resultado = new Root();
+                FineTunesDal ftd = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
+                resultado = await ftd.GetTrainingLog();
+
+                using (var httpClient = new HttpClient())
+                {
+                    using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.openai.com/v1/fine-tunes/" + resultado.id))
+                    {
+                        request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
+
+                        var response = await httpClient.SendAsync(request);
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            var respuesta = response.Content.ReadAsStringAsync();
+                            var data = JsonConvert.DeserializeObject<Root>(respuesta.Result.ToString());
+
+                            if (data.fine_tuned_model == null)
+                            {
+                                respuestaServicio.Mensaje = "El modelo actual no se encuentra ";
+                                return respuestaServicio;
+                            }
+                            else
+                            {
+                                Model = data.fine_tuned_model.ToString();
+                            }
+                        }
+                    }
+                }
+
+                using (var httpClient = new HttpClient())
+                {
+                    using (var request = new HttpRequestMessage(new HttpMethod("DELETE"), "https://api.openai.com/v1/models/" + Model))
+                    {
+                        request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
+
+                        var response = await httpClient.SendAsync(request);
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            var respuesta = response.Content.ReadAsStringAsync();
+                        }
+                    }
+                }
                 return Ok(resultado);
 
             }
@@ -149,7 +222,7 @@ namespace ApiConsultantAIMaven.Controllers
                     }
                 }
 
-                var api = new OpenAIAPI("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");
+                var api = new OpenAIAPI(apiKey);
 
                 OpenAI_API.Files.File result = new OpenAI_API.Files.File();
                 result.Model = OpenAI_API.Models.Model.AdaText;
@@ -161,7 +234,7 @@ namespace ApiConsultantAIMaven.Controllers
                 {
                     using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.openai.com/v1/fine-tunes"))
                     {
-                        request.Headers.TryAddWithoutValidation("Authorization", "Bearer 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");
+                        request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
                         request.Content = new StringContent("{\"training_file\":  \"" + result.Id + "\", \"model\": \"ada\"}");
                         request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
 
@@ -206,7 +279,7 @@ namespace ApiConsultantAIMaven.Controllers
                 {
                     using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.openai.com/v1/fine-tunes/" + fineTune))
                     {
-                        request.Headers.TryAddWithoutValidation("Authorization", "Bearer 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");
+                        request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
 
                         response = await httpClient.SendAsync(request);
                         if (response.StatusCode == System.Net.HttpStatusCode.OK)
@@ -227,6 +300,43 @@ namespace ApiConsultantAIMaven.Controllers
                 };
             }
             
+            return data;
+        }
+
+        [HttpGet("GetApiFineTune")]
+        [AllowAnonymous]
+        public async Task<Root> GetApiFineTune()
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            Root data = new Root();
+
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.openai.com/v1/fine-tunes"))
+                    {
+                        request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
+
+                        response = await httpClient.SendAsync(request);
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            var respuesta = response.Content.ReadAsStringAsync();
+                            data = JsonConvert.DeserializeObject<Root>(respuesta.Result.ToString());
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var emex = new ErrorDetails()
+                {
+                    StatusCode = 400,
+                    Message = "Error:  " + ex.Message.ToString()
+                };
+            }
+
             return data;
         }
 

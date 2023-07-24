@@ -10,6 +10,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static EntregasLogyTechSharedModel.FineTune.FineTuneResponseModel;
 
 namespace LogicaNegocioServicio.FineTunes
 {
@@ -116,6 +117,39 @@ namespace LogicaNegocioServicio.FineTunes
                         if (!Convert.IsDBNull(reader["Prompt"])) { fineTunes.Prompt = reader["Prompt"].ToString(); }
                         if (!Convert.IsDBNull(reader["Completion"])) { fineTunes.Completion = reader["Completion"].ToString(); }
                         resultado.Add(fineTunes);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Se genero un error al consultar los usuarios: " + ex.Message);
+            }
+            finally { }
+            if (db != null)
+            {
+                db.Dispose();
+            }
+
+            return resultado;
+        }
+
+        public async Task<Root> GetTrainingLog()
+        {
+            Root resultado = new Root();
+            Connection db = new Connection(ConectionString);
+            db.TiempoEsperaComando = 0;
+            try
+            {
+                db.SQLParametros.Clear();
+                db.TiempoEsperaComando = 0;
+                var reader = await db.EjecutarReaderAsync("GetTrainingLog", CommandType.StoredProcedure);
+                if (reader != null)
+                {
+                    while (reader.Read())
+                    {
+                        var fineTunes = new Root();
+
+                        if (!Convert.IsDBNull(reader["TrainingId"])) { resultado.id = reader["TrainingId"].ToString(); }
                     }
                 }
             }
