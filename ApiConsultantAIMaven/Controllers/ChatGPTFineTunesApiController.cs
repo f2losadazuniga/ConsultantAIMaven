@@ -21,78 +21,21 @@ using Azure;
 using Newtonsoft.Json;
 using System.IO;
 using static EntregasLogyTechSharedModel.FineTune.FineTuneResponseModel;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ApiConsultantAIMaven.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ChatGPTFineTunesController1 : ControllerBase
+    public class ChatGPTFineTunesApiController : ControllerBase
     {
         private readonly IConfiguration _ConnectionString;
         public string apiKey = string.Empty;
 
-        public ChatGPTFineTunesController1(IConfiguration Configuration)
+        public ChatGPTFineTunesApiController(IConfiguration Configuration)
         {
             this._ConnectionString = Configuration;
             apiKey = _ConnectionString.GetSection("ApiKey:key").Value;
-        }
-
-        [HttpGet("GetFineTuneId/{Id}")]
-        [AllowAnonymous]
-        public async Task<ActionResult<AllFineTune>> GetFineTuneId(Int32 Id)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                List<AllFineTune> resultado = new List<AllFineTune>();
-                FineTunesDal ftd = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
-                resultado = await ftd.GetFineTuneId(Id);
-                return Ok(resultado);
-
-            }
-            catch (Exception ex)
-            {
-                var emex = new ErrorDetails()
-                {
-                    StatusCode = 400,
-                    Message = "Error:  " + ex.Message.ToString()
-                };
-                return BadRequest(new JsonResult(emex));
-            }
-
-        }
-
-        [HttpPost("DeleteFineTuneId/{Id}")]
-        [AllowAnonymous]
-        public async Task<ActionResult<RespuestaServicio>> DeleteFineTuneId(Int32 Id)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                RespuestaServicio resultado = new RespuestaServicio();
-                FineTunesDal ftd = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
-                resultado = await ftd.DeleteFineTuneId(Id);
-                return Ok(resultado);
-
-            }
-            catch (Exception ex)
-            {
-                var emex = new ErrorDetails()
-                {
-                    StatusCode = 400,
-                    Message = "Error:  " + ex.Message.ToString()
-                };
-                return BadRequest(new JsonResult(emex));
-            }
-
         }
 
         [HttpPost("DeleteFineTuneApi")]
@@ -165,10 +108,13 @@ namespace ApiConsultantAIMaven.Controllers
 
         }
 
-        [HttpGet("GetAllFineTunes")]
+        [HttpPost("DeleteSpecifiedFineTuneApi/{fineTune}")]
         [AllowAnonymous]
-        public async Task<ActionResult<List<AllFineTune>>> GetAllFineTunes()
+        public async Task<ActionResult<DeletedFineTune>> DeleteSpecifiedFineTuneApi(string fineTune)
         {
+            string Model = string.Empty;
+            DeletedFineTune RespuestaServicio = new DeletedFineTune(); 
+            
             try
             {
                 if (!ModelState.IsValid)
@@ -176,11 +122,60 @@ namespace ApiConsultantAIMaven.Controllers
                     return BadRequest(ModelState);
                 }
 
-                List<AllFineTune> resultado = new List<AllFineTune>();
-                FineTunesDal mnu = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
-                resultado = await mnu.GetAllFineTunes();
+                Root resultado = new Root();
+                FineTunesDal ftd = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
+                resultado = await ftd.GetTrainingLog();
 
-                return Ok(resultado);
+                using (var httpClient = new HttpClient())
+                {
+                    using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.openai.com/v1/fine-tunes/" + fineTune))
+                    {
+                        request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
+
+                        var response = await httpClient.SendAsync(request);
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            var respuesta = response.Content.ReadAsStringAsync();
+                            var data = JsonConvert.DeserializeObject<Root>(respuesta.Result.ToString());
+
+                            if (data.fine_tuned_model == null)
+                            {
+                                RespuestaServicio.obj = "El modelo actual no se encuentra ";
+                            }
+                            else
+                            {
+                                Model = data.fine_tuned_model.ToString();
+                            }
+                        }
+                    }
+                }
+
+                using (var httpClient = new HttpClient())
+                {
+                    using (var request = new HttpRequestMessage(new HttpMethod("DELETE"), "https://api.openai.com/v1/models/" + Model))
+                    {
+                        request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
+
+                        var response = await httpClient.SendAsync(request);
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            var respuesta = response.Content.ReadAsStringAsync();
+                            RespuestaServicio = JsonConvert.DeserializeObject<DeletedFineTune>(respuesta.Result.ToString());
+
+                        }
+                    }
+                }
+
+                using (var httpClient = new HttpClient())
+                {
+                    string apiUrl = $"https://api.openai.com/v1/fine-tunes/{fineTune}/cancel";
+                    var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+
+                        request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
+                        var response = await httpClient.SendAsync(request);
+                }
+                return RespuestaServicio;
+
             }
             catch (Exception ex)
             {
@@ -194,7 +189,7 @@ namespace ApiConsultantAIMaven.Controllers
 
         }
 
-        [HttpGet("StartFineTune")]
+        [HttpGet("StartFineTuneApi")]
         [AllowAnonymous]
         public async Task<ActionResult<string>> StartFineTune()
         {
@@ -266,9 +261,9 @@ namespace ApiConsultantAIMaven.Controllers
 
         }
 
-        [HttpGet("GetStatusFineTune/{fineTune}")]
+        [HttpGet("GetStatusFineTuneApi/{fineTune}")]
         [AllowAnonymous]
-        public async Task<Root> GetStatusFineTune(string fineTune)
+        public async Task<Root> GetStatusFineTuneApi(string fineTune)
         {
             HttpResponseMessage response = new HttpResponseMessage();
             Root data = new Root();
@@ -305,11 +300,11 @@ namespace ApiConsultantAIMaven.Controllers
 
         [HttpGet("GetApiFineTune")]
         [AllowAnonymous]
-        public async Task<Root> GetApiFineTune()
+        public async Task<string> GetApiFineTune()
         {
             HttpResponseMessage response = new HttpResponseMessage();
-            Root data = new Root();
-
+            FineTuneResponseModel data = new FineTuneResponseModel();
+            string RespuestaServicio = string.Empty;
             try
             {
                 using (var httpClient = new HttpClient())
@@ -322,7 +317,8 @@ namespace ApiConsultantAIMaven.Controllers
                         if (response.StatusCode == System.Net.HttpStatusCode.OK)
                         {
                             var respuesta = response.Content.ReadAsStringAsync();
-                            data = JsonConvert.DeserializeObject<Root>(respuesta.Result.ToString());
+                            data = JsonConvert.DeserializeObject<FineTuneResponseModel>(respuesta.Result.ToString());
+                            RespuestaServicio = respuesta.Result;
                         }
                     }
                 }
@@ -337,39 +333,8 @@ namespace ApiConsultantAIMaven.Controllers
                 };
             }
 
-            return data;
-        }
-
-        [HttpPost("PostFineTunes")]
-        [AllowAnonymous]
-        public async Task<ActionResult> PostFineTunes([FromBody] List<DataFineTune> FineTune)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                List<RespuestaServicio> resultado = new List<RespuestaServicio>();
-                FineTunesDal ftd = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
-                resultado = await ftd.InsertAllFineTunes(FineTune);
-
-
-                return Ok(resultado);
-
-            }
-            catch (Exception ex)
-            {
-                var emex = new ErrorDetails()
-                {
-                    StatusCode = 400,
-                    Message = "Error:  " + ex.Message.ToString()
-                };
-                return BadRequest(new JsonResult(emex));
-            }
+            return RespuestaServicio;
 
         }
-
     }
 }
