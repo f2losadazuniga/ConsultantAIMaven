@@ -65,7 +65,7 @@ namespace ApiConsultantAIMaven.Controllers
                 //CompletionRequest completion = new CompletionRequest();
                 //completion.Prompt = query;
                 //completion.Model = fineTuneModel;
-
+                if (fineTuneModel != null) { 
                 using (var httpClient = new HttpClient())
                 {
                     using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.openai.com/v1/completions"))
@@ -78,13 +78,23 @@ namespace ApiConsultantAIMaven.Controllers
                         var response = await httpClient.SendAsync(request);
                     }
                 }
-
+                    return Ok(respuestas);
+                }
+                else
+                {
+                    var emex = new ErrorDetails()
+                    {
+                        StatusCode = 400,
+                        Message = "No se encontró modelo activo"
+                    };
+                    return BadRequest(new JsonResult(emex));
+                }
                 //var respuesta = openai.Completions.CreateCompletionAsync(completion);
                 //foreach (var complet in respuesta.Result.Completions)
                 //{
                 //    respuestas = complet.Text;
                 //}
-                return Ok(respuestas);
+               
 
             }
             catch (Exception ex)
