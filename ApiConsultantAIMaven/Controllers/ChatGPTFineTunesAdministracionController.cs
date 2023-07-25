@@ -35,7 +35,7 @@ namespace ApiConsultantAIMaven.Controllers
         public ChatGPTFineTunesAdministracionController(IConfiguration Configuration)
         {
             this._ConnectionString = Configuration;
-            apiKey = _ConnectionString.GetSection("ApiKey:key").Value;
+            apiKey = ConfigValues.seleccionarConfigValue("ApikeyChatGPT", _ConnectionString.GetConnectionString("DefaultConnection"));
         }
 
         [HttpGet("GetFineTuneId/{Id}")]

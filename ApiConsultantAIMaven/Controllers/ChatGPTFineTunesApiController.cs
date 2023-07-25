@@ -35,7 +35,7 @@ namespace ApiConsultantAIMaven.Controllers
         public ChatGPTFineTunesApiController(IConfiguration Configuration)
         {
             this._ConnectionString = Configuration;
-            apiKey = _ConnectionString.GetSection("ApiKey:key").Value;
+            apiKey = ConfigValues.seleccionarConfigValue("ApikeyChatGPT", _ConnectionString.GetConnectionString("DefaultConnection"));
         }
 
         [HttpPost("DeleteFineTuneApi")]
@@ -206,7 +206,12 @@ namespace ApiConsultantAIMaven.Controllers
                 FineTunesDal ftd = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
                 resultado = await ftd.GetAllFineTunesToTraining();
 
-                string filePath = "archivoEntrenamiento_" + DateTime.Now.ToShortDateString().Replace("/", "_") + ".jsonl";
+                if (!Directory.Exists("tmp"))
+                {
+                    Directory.CreateDirectory("tmp");
+                }
+
+                string filePath = "tmp/archivoEntrenamiento_" + DateTime.Now.ToShortDateString().Replace("/", "_") + ".jsonl";
 
                 using (StreamWriter fileWriter = new StreamWriter(filePath))
                 {
@@ -322,7 +327,6 @@ namespace ApiConsultantAIMaven.Controllers
                         }
                     }
                 }
-
             }
             catch (Exception ex)
             {
