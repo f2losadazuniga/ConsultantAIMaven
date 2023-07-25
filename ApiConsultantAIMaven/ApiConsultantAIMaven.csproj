@@ -21,4 +21,8 @@
     <ProjectReference Include="..\LogicaNegocioServicio\LogicaNegocioServicio.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="tmp\" />
+  </ItemGroup>
+
 </Project>

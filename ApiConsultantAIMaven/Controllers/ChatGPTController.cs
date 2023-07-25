@@ -76,6 +76,8 @@ namespace ApiConsultantAIMaven.Controllers
                         request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
 
                         var response = await httpClient.SendAsync(request);
+                        var respuestaServicio = response.Content.ReadAsStringAsync();
+
                     }
                 }
 
