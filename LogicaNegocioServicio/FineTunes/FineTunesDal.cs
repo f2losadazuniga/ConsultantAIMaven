@@ -122,7 +122,7 @@ namespace LogicaNegocioServicio.FineTunes
             }
             catch (Exception ex)
             {
-                throw new Exception("Se genero un error al consultar los usuarios: " + ex.Message);
+                throw new Exception("Se genero un error al consultar los entrenamietos: " + ex.Message);
             }
             finally { }
             if (db != null)
@@ -175,7 +175,7 @@ namespace LogicaNegocioServicio.FineTunes
             {
                 db.SQLParametros.Clear();
                 db.TiempoEsperaComando = 0;
-                var reader = await db.EjecutarReaderAsync("GetAllFineTunes", CommandType.StoredProcedure);
+                var reader = await db.EjecutarReaderAsync("GetAllFineTunesToTraining", CommandType.StoredProcedure);
                 if (reader != null)
                 {
                     while (reader.Read())
