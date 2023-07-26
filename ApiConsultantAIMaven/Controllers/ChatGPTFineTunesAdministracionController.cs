@@ -127,7 +127,7 @@ namespace ApiConsultantAIMaven.Controllers
 
         [HttpPost("InsertAllFineTunes")]
         [AllowAnonymous]
-        public async Task<ActionResult> InsertAllFineTunes([FromBody] List<DataFineTune> FineTune)
+        public async Task<ActionResult> InsertAllFineTunes([FromBody] List<ModelJsonL> FineTune)
         {
             try
             {
@@ -136,10 +136,9 @@ namespace ApiConsultantAIMaven.Controllers
                     return BadRequest(ModelState);
                 }
 
-                List<RespuestaServicio> resultado = new List<RespuestaServicio>();
+                RespuestaServicio resultado = new RespuestaServicio();
                 FineTunesDal ftd = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
-                resultado = await ftd.InsertAllFineTunes(FineTune);
-
+                resultado = await ftd.InsertAllFineTunes(FineTune,1);
 
                 return Ok(resultado);
 

@@ -34,7 +34,7 @@ namespace ApiConsultantAIMaven.Controllers
         }
 
         [HttpGet("UseChatGPT")]
-        [AllowAnonymous]
+        //[AllowAnonymous]
         public async Task<ActionResult> UseChatGPT(String query)
         {
             string fineTuneModel = string.Empty;
@@ -61,23 +61,33 @@ namespace ApiConsultantAIMaven.Controllers
                 }
 
                 string respuestas = string.Empty;
-                //var openai = new OpenAIAPI(apiKey);
-                //CompletionRequest completion = new CompletionRequest();
-                //completion.Prompt = query;
-                //completion.Model = fineTuneModel;
-                if (fineTuneModel != null) { 
-                using (var httpClient = new HttpClient())
+                
+
+                if (fineTuneModel != null)
                 {
-                    using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.openai.com/v1/completions"))
+                    var openai = new OpenAIAPI(apiKey);
+                    CompletionRequest completion = new CompletionRequest();
+                    completion.Prompt = query;
+                    completion.Model = fineTuneModel;
+                    var respuesta = openai.Completions.CreateCompletionAsync(completion);
+                    foreach (var complet in respuesta.Result.Completions)
                     {
-                        request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
-
-                        request.Content = new StringContent("{\n    \"model\": \"" + fineTuneModel + "\",\n    \"prompt\": \"" + query + "\",\n    \"max_tokens\": 7,\n    \"temperature\": 0\n  }");
-                        request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
-
-                        var response = await httpClient.SendAsync(request);
+                        respuestas = complet.Text;
                     }
-                }
+                    //using (var httpClient = new HttpClient())
+                    //{
+                    //    using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.openai.com/v1/completions"))
+                    //    {
+                    //        request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
+
+                    //        request.Content = new StringContent("{\n    \"model\": \"" + fineTuneModel + "\",\n    \"prompt\": \"" + query + "\",\n    \"temperature\": 0\n  }");
+                    //        request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+
+                    //        var response = await httpClient.SendAsync(request);
+                    //        var mens = response.Content.ReadAsStringAsync();
+
+                    //    }
+                //}
                     return Ok(respuestas);
                 }
                 else
@@ -94,7 +104,7 @@ namespace ApiConsultantAIMaven.Controllers
                 //{
                 //    respuestas = complet.Text;
                 //}
-               
+
 
             }
             catch (Exception ex)

@@ -33,7 +33,7 @@ namespace ApiIntegracionEntregasLogyTech.Controllers
         }
         [HttpPost("Login")]
         [AllowAnonymous]
-        public async Task<ActionResult<UserToken>> Login([FromBody] UsuarioLogin userInfo)
+        public async Task<ActionResult<ReponseToken>> Login([FromBody] UsuarioLogin userInfo)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace ApiIntegracionEntregasLogyTech.Controllers
 
 
         [HttpGet("RenovarToken")]   
-        public async Task<ActionResult<UserToken>>RenovarToken()
+        public async Task<ActionResult<ReponseToken>>RenovarToken()
         {
             var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "unique_name").FirstOrDefault();
             var pasword = HttpContext.User.Claims.Where(claim => claim.Type == "pwd").FirstOrDefault();
@@ -101,8 +101,9 @@ namespace ApiIntegracionEntregasLogyTech.Controllers
 
       
 
-        private UserToken BuildToken(UsuarioLogin userInfo, UserToken usToken)
+        private ReponseToken BuildToken(UsuarioLogin userInfo, UserToken usToken)
         {
+            ReponseToken tk = new ReponseToken();
             var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.Usuario),
@@ -124,100 +125,11 @@ namespace ApiIntegracionEntregasLogyTech.Controllers
                expires: expiration,
                signingCredentials: creds);
 
-            usToken.Token = new JwtSecurityTokenHandler().WriteToken(token);
-            usToken.Expiration = expiration;
-            return usToken;
+            tk.Token = new JwtSecurityTokenHandler().WriteToken(token);
+            tk.Expiration = expiration;
+            return tk;
         }
 
-        //[HttpGet("Encrytar/{Cadena}")]
-        //[AllowAnonymous]
-        //public ActionResult<string> EncrytarCadena(string Cadena)
-        //{
-        //    try
-        //    {
-        //        if (string.IsNullOrWhiteSpace(Cadena))
-        //        {
-        //            return BadRequest("La Cadena no puedes esta vacia");
-        //        }
-        //        else
-        //        {
-
-        //            return UsuarioDal.GetSHA256(Cadena);
-
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        var emex = new ErrorDetails()
-        //        {
-        //            StatusCode = 400,
-        //            Message = "Error:  " + ex.Message.ToString()
-        //        };
-        //        return new JsonResult(emex);
-        //    }
-
-        //}
-
-
-        //[HttpPost("CambioClave")]
-        //public async Task<ActionResult<RespuestaServicio>> CambioClave([FromBody] CambioClaveUsuario userInfo)
-        //{
-        //    try
-        //    {
-        //        if (!ModelState.IsValid)
-        //        {
-        //            return BadRequest(ModelState);
-        //        }
-        //        else
-        //        {
-        //            userInfo.NuevaClave = UsuarioDal.GetSHA256(userInfo.NuevaClave);
-        //            RespuestaServicio resultado = new RespuestaServicio();
-        //            UsuarioDal usuvali = new UsuarioDal(_ConnectionString.GetConnectionString("DefaultConnection"));
-        //            resultado = await usuvali.CambioClaveUsuario(userInfo);
-        //            return resultado;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        var emex = new ErrorDetails()
-        //        {
-        //            StatusCode = 400,
-        //            Message = "Error:  " + ex.Message.ToString()
-        //        };
-        //        return BadRequest(new JsonResult(emex));
-        //    }
-
-        //}        
-
-        //[HttpPost("CambioClaveNew")]
-        //public async Task<ActionResult<RespuestaServicio>> CambioClaveNew([FromBody] CambioClaveUsuario userInfo)
-        //{
-        //    try
-        //    {
-        //        if (!ModelState.IsValid)
-        //        {
-        //            return BadRequest(ModelState);
-        //        }
-        //        else
-        //        {
-        //            userInfo.NuevaClave = UsuarioDal.GetSHA256(userInfo.NuevaClave);
-        //            RespuestaServicio resultado = new RespuestaServicio();
-        //            UsuarioDal usuvali = new UsuarioDal(_ConnectionString.GetConnectionString("DefaultConnection"));
-        //            resultado = await usuvali.CambioClaveUsuario(userInfo);
-        //            return resultado;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        var emex = new ErrorDetails()
-        //        {
-        //            StatusCode = 400,
-        //            Message = "Error:  " + ex.Message.ToString()
-        //        };
-        //        return BadRequest(new JsonResult(emex));
-        //    }
-
-        //}
 
     }
 

@@ -20,31 +20,17 @@ namespace LogicaNegocioServicio.Comunes
 
         public static void RegistrarLog(LogModel model)
         {
-            byte[] compressedBytes = null;
-
+           
             using (var dbManager = new Connection())
             {
                 if (!string.IsNullOrEmpty(model.Peticion))
-                {
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        using (GZipStream gzipStream = new GZipStream(ms, CompressionMode.Compress, true))
-                        {
-                            using (StreamWriter writer = new StreamWriter(gzipStream))
-                            {
-                                writer.Write(model.Peticion);
-                            }
-                        }
-                        compressedBytes = ms.ToArray();
-                    }
-                    dbManager.SQLParametros.AddWithValue("@Peticion", compressedBytes);
+                {                   
+                    dbManager.SQLParametros.AddWithValue("@Peticion", model.Peticion);
                 }
-
                 if (!string.IsNullOrEmpty(model.Respuesta))
                     dbManager.SQLParametros.AddWithValue("@Respuesta", model.Respuesta);
                 if (!string.IsNullOrEmpty(model.Servicio))
                     dbManager.SQLParametros.AddWithValue("@Servicio", model.Servicio);
-
                 dbManager.EjecutarNonQuery("RegistrarLogServicios", CommandType.StoredProcedure);
             }
         }

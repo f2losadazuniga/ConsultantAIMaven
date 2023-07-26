@@ -201,10 +201,10 @@ namespace LogicaNegocioServicio.FineTunes
             return resultado;
         }
 
-        public async Task<List<RespuestaServicio>> InsertAllFineTunes(List<DataFineTune> FineTunes)
+        public async Task<RespuestaServicio> InsertAllFineTunes(List<ModelJsonL> FineTunes, int idUsuario)
         {
             Connection db = new Connection(ConectionString);
-            List<RespuestaServicio> resultado = new List<RespuestaServicio>();
+            RespuestaServicio resultado = new RespuestaServicio();
             DataTable dtFineTunes = new DataTable();
             db.TiempoEsperaComando = 0;
             try
@@ -212,24 +212,15 @@ namespace LogicaNegocioServicio.FineTunes
                 db.SQLParametros.Clear();
                 db.TiempoEsperaComando = 0;
                 db.IniciarTransaccion();
-
                 dtFineTunes = ConvertirObjetoListToDataTable.ConvertToDataTable(FineTunes);
+                db.SQLParametros.Add("@idUsuario", SqlDbType.VarChar, 250).Value = idUsuario;
                 db.SQLParametros.Add(new SqlParameter("@FineTunesList", dtFineTunes));
-
-                var reader = await db.EjecutarReaderAsync("InsertAllFineTunes", CommandType.StoredProcedure);
-                if (reader != null)
-                {
-                    //while (reader.Read())
-                    //{
-                    //    RespuestaServicio respuestaServicio = new RespuestaServicio();
-                    //    if (!Convert.IsDBNull(reader["Fila"])) { respuestaServicio.Codigo = reader["Fila"].ToString(); }
-                    //    if (!Convert.IsDBNull(reader["Descripcion"])) { respuestaServicio.Mensaje = reader["Descripcion"].ToString(); }
-                    //    resultado.Add(respuestaServicio);
-                    //}
-                }
-
-                reader.CloseAsync();
-                if (resultado.Count == 0)
+                db.SQLParametros.Add("@Mensaje", SqlDbType.VarChar, 250).Direction = ParameterDirection.Output;
+                db.SQLParametros.Add("@returnValue", SqlDbType.SmallInt).Direction = ParameterDirection.ReturnValue;
+                await db.EjecutarNonQueryAsync("InsertAllFineTunes", CommandType.StoredProcedure);
+                resultado.Codigo = db.SQLParametros["@returnValue"].Value.ToString();
+                resultado.Mensaje = db.SQLParametros["@Mensaje"].Value.ToString();
+                if (resultado.Codigo == "200")
                 {
                     db.ConfirmarTransaccion();
                 }

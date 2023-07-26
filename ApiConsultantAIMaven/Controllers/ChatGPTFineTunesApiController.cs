@@ -266,6 +266,11 @@ namespace ApiConsultantAIMaven.Controllers
 
         }
 
+        /// <summary>
+        /// Gets the status of a "fine-tune" process from the API.
+        /// </summary>
+        /// <param name="fineTune">The ID of the "fine-tune" process to query.</param>
+        /// <returns>An object of type Root containing the data of the "fine-tune" process.</returns>
         [HttpGet("GetStatusFineTuneApi/{fineTune}")]
         [AllowAnonymous]
         public async Task<Root> GetStatusFineTuneApi(string fineTune)
@@ -277,29 +282,36 @@ namespace ApiConsultantAIMaven.Controllers
             {
                 using (var httpClient = new HttpClient())
                 {
-                    using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.openai.com/v1/fine-tunes/" + fineTune))
+                    using (var request = new HttpRequestMessage(HttpMethod.Get, "https://api.openai.com/v1/fine-tunes/" + fineTune))
                     {
+                        // Add the authorization header with the OpenAI API Key.
                         request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
 
+                        // Make the HTTP request to the OpenAI API.
                         response = await httpClient.SendAsync(request);
+
+                        // If the response is successful (200 OK), process the response data.
                         if (response.StatusCode == System.Net.HttpStatusCode.OK)
                         {
-                            var respuesta = response.Content.ReadAsStringAsync();
-                            data = JsonConvert.DeserializeObject<Root>(respuesta.Result.ToString());
+                            // Read the content of the response.
+                            var respuesta = await response.Content.ReadAsStringAsync();
+
+                            // Deserialize the JSON content into an object of type Root.
+                            data = JsonConvert.DeserializeObject<Root>(respuesta);
                         }
                     }
                 }
-
             }
             catch (Exception ex)
             {
+                // In case an exception occurs, create an ErrorDetails object to capture the error information.
                 var emex = new ErrorDetails()
                 {
                     StatusCode = 400,
-                    Message = "Error:  " + ex.Message.ToString()
+                    Message = "Error: " + ex.Message.ToString()
                 };
             }
-            
+
             return data;
         }
 

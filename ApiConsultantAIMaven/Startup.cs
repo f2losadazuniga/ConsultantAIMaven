@@ -14,6 +14,7 @@ using LogicaNegocioServicio.Autenticacion;
 using LogicaNegocioServicio.Middleware;
 using LogicaNegocioServicio.Comunes;
 using ApiIntegracionEntregasLogyTech.Controllers;
+using ApiConsultantAIMaven.Controllers;
 
 namespace ApiIntegracionEntregasLogyTech
 {
@@ -97,7 +98,9 @@ namespace ApiIntegracionEntregasLogyTech
             services.AddIdentity<UserToken, IdentityRole>()
               .AddDefaultTokenProviders();
             services.AddScoped<CuentasController>();
-            //services.AddScoped<UsersController>();
+            services.AddScoped<ChatGPTController>();
+            services.AddScoped<ChatGPTFineTunesAdministracionController>();
+            services.AddScoped<ChatGPTFineTunesApiController>();
 
 
         }
