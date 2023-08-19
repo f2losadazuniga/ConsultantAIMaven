@@ -12,9 +12,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Comunes\ConvertirObjetoListToDataTable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Comunes\NotificacionError.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Comunes\RespuestaServicio.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Conversation\AllConversations.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Conversation\RecordReaction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Customer\Customer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FineTune\AllFineTune.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FineTune\DataFineTune.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FineTune\DeletedFineTune.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Conversation\Chat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FineTune\FineTuneResponseModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FineTune\ModelJsonL.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Perfil\Perfiles.cs" />

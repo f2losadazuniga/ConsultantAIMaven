@@ -1,8 +1,11 @@
 ﻿
-using Azure;
-using ConsultantAIMavenSharedModel.Usuarios;
-using LogicaNegocioServicio.Autenticacion;
+using ConsultantAIMavenSharedModel.Comunes;
+using EntregasLogyTechSharedModel.Conversation;
+using EntregasLogyTechSharedModel.Customer;
+using EntregasLogyTechSharedModel.FineTune;
 using LogicaNegocioServicio.Comunes;
+using LogicaNegocioServicio.Conversation;
+using LogicaNegocioServicio.Customers;
 using LogicaNegocioServicio.FineTunes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -12,8 +15,9 @@ using Newtonsoft.Json;
 using OpenAI_API;
 using OpenAI_API.Completions;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using static EntregasLogyTechSharedModel.FineTune.FineTuneResponseModel;
 
@@ -33,11 +37,24 @@ namespace ApiConsultantAIMaven.Controllers
             apiKey = ConfigValues.seleccionarConfigValue("ApikeyChatGPT", _ConnectionString.GetConnectionString("DefaultConnection"));
         }
 
-        [HttpGet("UseChatGPT")]
+        [HttpPost("UseChatGPT")]
         //[AllowAnonymous]
-        public async Task<ActionResult> UseChatGPT(String query)
+        public async Task<ActionResult> UseChatGPT(Chat query)
         {
             string fineTuneModel = string.Empty;
+            var identity = (ClaimsIdentity)User.Identity;
+            var claims = identity.FindFirst(c => c.Type == "IdUsuario");
+            var idUsuario = Convert.ToInt32(claims.Value);
+            if (idUsuario <= 0)
+            {
+                var em = new ErrorDetails()
+                {
+                    StatusCode = 400,
+                    Message = "Error: The user is not authorized "
+                };
+                return new JsonResult(em);
+            }
+
             try
             {
                 Root resultado = new Root();
@@ -67,27 +84,16 @@ namespace ApiConsultantAIMaven.Controllers
                 {
                     var openai = new OpenAIAPI(apiKey);
                     CompletionRequest completion = new CompletionRequest();
-                    completion.Prompt = query;
+                    completion.Prompt = query.Message;
                     completion.Model = fineTuneModel;
                     var respuesta = openai.Completions.CreateCompletionAsync(completion);
                     foreach (var complet in respuesta.Result.Completions)
                     {
-                        respuestas = complet.Text;
+                        respuestas = respuestas + "\n" +complet.Text;
                     }
-                    //using (var httpClient = new HttpClient())
-                    //{
-                    //    using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.openai.com/v1/completions"))
-                    //    {
-                    //        request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
+                    ChatDALL chat = new ChatDALL(_ConnectionString.GetConnectionString("DefaultConnection"));
+                     await chat.InsertConversation(query, idUsuario, respuestas);
 
-                    //        request.Content = new StringContent("{\n    \"model\": \"" + fineTuneModel + "\",\n    \"prompt\": \"" + query + "\",\n    \"temperature\": 0\n  }");
-                    //        request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
-
-                    //        var response = await httpClient.SendAsync(request);
-                    //        var mens = response.Content.ReadAsStringAsync();
-
-                    //    }
-                //}
                     return Ok(respuestas);
                 }
                 else
@@ -99,13 +105,7 @@ namespace ApiConsultantAIMaven.Controllers
                     };
                     return BadRequest(new JsonResult(emex));
                 }
-                //var respuesta = openai.Completions.CreateCompletionAsync(completion);
-                //foreach (var complet in respuesta.Result.Completions)
-                //{
-                //    respuestas = complet.Text;
-                //}
-
-
+               
             }
             catch (Exception ex)
             {
@@ -118,5 +118,92 @@ namespace ApiConsultantAIMaven.Controllers
             }
 
         }
+
+        [HttpGet("GetAllChat")]
+        //[AllowAnonymous]
+        public async Task<ActionResult<List<AllConversations>>> GetAllChat(string email)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var identity = (ClaimsIdentity)User.Identity;
+                var claims = identity.FindFirst(c => c.Type == "IdUsuario");
+                var idUsuario = Convert.ToInt32(claims.Value);
+                if (idUsuario <= 0)
+                {
+                    var em = new ErrorDetails()
+                    {
+                        StatusCode = 400,
+                        Message = "Error: The user is not authorized "
+                    };
+                    return new JsonResult(em);
+                }
+                List<AllConversations> result = new List<AllConversations>();
+                ChatDALL objChat = new ChatDALL(_ConnectionString.GetConnectionString("DefaultConnection"));
+                result = await objChat.GetAllChat(email, idUsuario);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var emex = new ErrorDetails()
+                {
+                    StatusCode = 400,
+                    Message = "Error:  " + ex.Message.ToString()
+                };
+                return BadRequest(new JsonResult(emex));
+            }
+
+        }
+
+        /// <summary>
+        /// Insert a reaction record.
+        /// </summary>
+        /// <param name="Reaction">The reaction record to insert.</param>
+        /// <returns>An ActionResult containing the response of the insertion.</returns>
+        [HttpPost("InsertReaction")]
+        public async Task<ActionResult<RespuestaServicio>> InsertReaction([FromBody] RecordReaction Reaction)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                // Get the user's ID from claims
+                var identity = (ClaimsIdentity)User.Identity;
+                var claims = identity.FindFirst(c => c.Type == "IdUsuario");
+                var idUsuario = Convert.ToInt32(claims.Value);
+
+                // Check user authorization
+                if (idUsuario <= 0)
+                {
+                    return BadRequest(new RespuestaServicio
+                    {
+                        Codigo = "400",
+                        Mensaje = "Error: The user is not authorized"
+                    });
+                }
+                // Initialize ChatDALL using the provided connection string
+                var objChat = new ChatDALL(_ConnectionString.GetConnectionString("DefaultConnection"));
+                // Insert the reaction using the ChatDALL service
+                var result = await objChat.InsertReaction(Reaction, idUsuario);
+                // Return the successful result
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new RespuestaServicio
+                {
+                    Codigo = "400",
+                    Mensaje = $"Error: {ex.Message}"
+                });
+            }
+        }
+
     }
 }
