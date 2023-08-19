@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\**" />
     <Compile Remove="AutorizacionIngreso\**" />
     <Compile Remove="Autorizacion\**" />
     <Compile Remove="Contexts\**" />
@@ -19,6 +20,9 @@
     <Compile Remove="Ingresos\**" />
     <Compile Remove="Marcas\**" />
     <Compile Remove="Models\**" />
+    <Compile Remove="Perfil\**" />
+    <Compile Remove="Usuarios\**" />
+    <EmbeddedResource Remove="Areas\**" />
     <EmbeddedResource Remove="AutorizacionIngreso\**" />
     <EmbeddedResource Remove="Autorizacion\**" />
     <EmbeddedResource Remove="Contexts\**" />
@@ -26,6 +30,9 @@
     <EmbeddedResource Remove="Ingresos\**" />
     <EmbeddedResource Remove="Marcas\**" />
     <EmbeddedResource Remove="Models\**" />
+    <EmbeddedResource Remove="Perfil\**" />
+    <EmbeddedResource Remove="Usuarios\**" />
+    <None Remove="Areas\**" />
     <None Remove="AutorizacionIngreso\**" />
     <None Remove="Autorizacion\**" />
     <None Remove="Contexts\**" />
@@ -33,12 +40,19 @@
     <None Remove="Ingresos\**" />
     <None Remove="Marcas\**" />
     <None Remove="Models\**" />
+    <None Remove="Perfil\**" />
+    <None Remove="Usuarios\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="Models\ApiRestRespuesta.cs" />
     <Compile Include="Models\MasivApiResponse.cs" />
     <Compile Include="Models\SmsRequestInfo.cs" />
+    <Compile Include="Usuarios\UserNew.cs" />
+    <Compile Include="Usuarios\UserNewInsert.cs" />
+    <Compile Include="Usuarios\UserRecover.cs" />
+    <Compile Include="Usuarios\UsersDal.cs" />
+    <Compile Include="Usuarios\UserValidaToken.cs" />
   </ItemGroup>
 
   <ItemGroup>
