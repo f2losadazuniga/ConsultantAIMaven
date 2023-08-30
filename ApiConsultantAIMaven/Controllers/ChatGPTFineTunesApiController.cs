@@ -225,7 +225,7 @@ namespace ApiConsultantAIMaven.Controllers
                 var api = new OpenAIAPI(apiKey);
 
                 OpenAI_API.Files.File result = new OpenAI_API.Files.File();
-                result.Model = OpenAI_API.Models.Model.AdaText;
+                result.Model = OpenAI_API.Models.Model.GPT4;
                 result.Purpose = "fine-tune";
                 result.Name = "archivoPruebaFineTune";
                 result.Object = "fine-tune";

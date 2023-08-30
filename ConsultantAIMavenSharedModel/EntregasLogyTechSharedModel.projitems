@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Comunes\NotificacionError.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Comunes\RespuestaServicio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Conversation\AllConversations.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Conversation\Answer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Conversation\RecordReaction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Customer\Customer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FineTune\AllFineTune.cs" />

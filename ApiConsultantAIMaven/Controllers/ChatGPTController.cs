@@ -39,8 +39,10 @@ namespace ApiConsultantAIMaven.Controllers
 
         [HttpPost("UseChatGPT")]
         //[AllowAnonymous]
-        public async Task<ActionResult> UseChatGPT(Chat query)
+        public async Task<ActionResult<Answer>> UseChatGPT(Chat query)
         {
+            Answer result = new Answer();
+
             string fineTuneModel = string.Empty;
             var identity = (ClaimsIdentity)User.Identity;
             var claims = identity.FindFirst(c => c.Type == "IdUsuario");
@@ -78,7 +80,7 @@ namespace ApiConsultantAIMaven.Controllers
                 }
 
                 string respuestas = string.Empty;
-                
+
 
                 if (fineTuneModel != null)
                 {
@@ -89,12 +91,19 @@ namespace ApiConsultantAIMaven.Controllers
                     var respuesta = openai.Completions.CreateCompletionAsync(completion);
                     foreach (var complet in respuesta.Result.Completions)
                     {
-                        respuestas = respuestas + "\n" +complet.Text;
+                        if (respuestas == null || respuestas == "")
+                        {
+                            respuestas = complet.Text;
+                        }
+                        else
+                        {
+                            respuestas = respuestas + " " + complet.Text ;
+                        }
                     }
                     ChatDALL chat = new ChatDALL(_ConnectionString.GetConnectionString("DefaultConnection"));
-                     await chat.InsertConversation(query, idUsuario, respuestas);
-
-                    return Ok(respuestas);
+                    await chat.InsertConversation(query, idUsuario, respuestas);
+                    result.answer = respuestas;
+                    return result;
                 }
                 else
                 {
@@ -105,7 +114,7 @@ namespace ApiConsultantAIMaven.Controllers
                     };
                     return BadRequest(new JsonResult(emex));
                 }
-               
+
             }
             catch (Exception ex)
             {
@@ -193,7 +202,7 @@ namespace ApiConsultantAIMaven.Controllers
                 // Insert the reaction using the ChatDALL service
                 var result = await objChat.InsertReaction(Reaction, idUsuario);
                 // Return the successful result
-                return Ok(result);
+                return result;
             }
             catch (Exception ex)
             {

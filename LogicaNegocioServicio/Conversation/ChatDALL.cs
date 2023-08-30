@@ -55,6 +55,7 @@ namespace LogicaNegocioServicio.Conversation
             {
                 db.SQLParametros.Clear();
                 db.TiempoEsperaComando = 0;
+                db.SQLParametros.Add("@idUser", SqlDbType.Int).Value = idUsuario;
                 db.SQLParametros.Add("@IdConversation", SqlDbType.Int).Value = Reaction.idConversation;
                 db.SQLParametros.Add("@Reaction", SqlDbType.Bit, -1).Value = Reaction.Reaction;
                 db.SQLParametros.Add("@Message", SqlDbType.VarChar, 200).Value = Reaction.Message;
