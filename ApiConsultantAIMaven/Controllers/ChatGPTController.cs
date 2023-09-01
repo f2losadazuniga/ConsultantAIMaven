@@ -74,7 +74,21 @@ namespace ApiConsultantAIMaven.Controllers
                         {
                             var respuestaString = response.Content.ReadAsStringAsync();
                             var data = JsonConvert.DeserializeObject<Root>(respuestaString.Result.ToString());
-                            fineTuneModel = data.fine_tuned_model.ToString();
+                            if (data.fine_tuned_model == null)
+                            {
+                                var emex = new ErrorDetails()
+                                {
+                                    StatusCode = 400,
+                                    Message = "No available trained model found"
+                                };
+                                return BadRequest(new JsonResult(emex));
+                            }
+                            else
+                            {
+                                fineTuneModel = data.fine_tuned_model.ToString();
+
+                            }
+
                         }
                     }
                 }
@@ -97,7 +111,7 @@ namespace ApiConsultantAIMaven.Controllers
                         }
                         else
                         {
-                            respuestas = respuestas + " " + complet.Text ;
+                            respuestas = respuestas + " " + complet.Text;
                         }
                     }
                     ChatDALL chat = new ChatDALL(_ConnectionString.GetConnectionString("DefaultConnection"));
