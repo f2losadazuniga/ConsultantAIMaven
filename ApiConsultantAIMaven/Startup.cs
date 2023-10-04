@@ -101,7 +101,7 @@ namespace ApiIntegracionEntregasLogyTech
             services.AddScoped<ChatGPTController>();
             services.AddScoped<ChatGPTFineTunesAdministracionController>();
             services.AddScoped<ChatGPTFineTunesApiController>();
-
+            services.AddScoped<DynamicsController>();
 
         }
 

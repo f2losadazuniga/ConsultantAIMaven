@@ -16,6 +16,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Conversation\Answer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Conversation\RecordReaction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Customer\Customer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamic\ResponseDynamics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FineTune\AllFineTune.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FineTune\DataFineTune.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FineTune\DeletedFineTune.cs" />
