@@ -47,7 +47,7 @@ namespace ApiConsultantAIMaven.Controllers
             QuestionClass questionData = new QuestionClass();
             questionData.question = query.Message;
             string jsonContent = JsonConvert.SerializeObject(questionData);
-            string url = ConfigValues.seleccionarConfigValue("URLChatcanvas", _ConnectionString.GetConnectionString("DefaultConnection"));
+            string url = ConfigValues.seleccionarConfigValue("URLApiChatcanvas", _ConnectionString.GetConnectionString("DefaultConnection"));
 
             var identity = (ClaimsIdentity)User.Identity;
             var claims = identity.FindFirst(c => c.Type == "IdUsuario");

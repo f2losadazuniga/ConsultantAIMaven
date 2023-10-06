@@ -7,10 +7,9 @@ namespace LogicaNegocioServicio.Comunes
         public int StatusCode { get; set; }
         public string Message { get; set; }
 
-        public override string ToString()
+        public ErrorDetails()
         {
-            StatusCode = 400;
-            return JsonConvert.SerializeObject(this);
+            StatusCode = 400;            
         }
     }
 }

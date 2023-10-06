@@ -1,13 +1,17 @@
 ﻿using EntregasLogyTechSharedModel.Dynamic;
 using LogicaNegocioServicio.Comunes;
+using LogicaNegocioServicio.Dynamic;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using OpenAI_API.Moderation;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ApiConsultantAIMaven.Controllers
@@ -34,51 +38,20 @@ namespace ApiConsultantAIMaven.Controllers
         {
             try
             {
-
-                string TokenUrl = ConfigValues.seleccionarConfigValue("URLDynamicGettoken", _ConnectionString.GetConnectionString("DefaultConnection"));
-                ResponseDynamics result = new ResponseDynamics();
-                string Dynamic_Grant_type = ConfigValues.seleccionarConfigValue("Dynamic_Grant_type", _ConnectionString.GetConnectionString("DefaultConnection"));
-                string Dynamic_Client_id = ConfigValues.seleccionarConfigValue("Dynamic_Client_id", _ConnectionString.GetConnectionString("DefaultConnection"));
-                string Dynamic_Client_secret = ConfigValues.seleccionarConfigValue("Dynamic_Client_secret", _ConnectionString.GetConnectionString("DefaultConnection"));
-                string Dynamic_Resource = ConfigValues.seleccionarConfigValue("Dynamic_Resource", _ConnectionString.GetConnectionString("DefaultConnection"));
-                try
+                ResponseDynamics resultado = new ResponseDynamics();
+                DynamicDal dynami = new DynamicDal(_ConnectionString.GetConnectionString("DefaultConnection"));
+                resultado = await dynami.GetToken(_httpClient);
+                if (String.IsNullOrEmpty(resultado.access_token))
                 {
-                    var formData = new FormUrlEncodedContent(new[]
-                    {
-                new KeyValuePair<string, string>("grant_type", Dynamic_Grant_type),
-                new KeyValuePair<string, string>("client_id", Dynamic_Client_id),
-                new KeyValuePair<string, string>("client_secret", Dynamic_Client_secret),
-                new KeyValuePair<string, string>("resource", Dynamic_Resource)
-            });
-
-                    var response = await _httpClient.PostAsync(TokenUrl, formData);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var content = await response.Content.ReadAsStringAsync();
-                        // Deserialize the JSON response into ResponseDynamics
-                        var responseDynamics = JsonConvert.DeserializeObject<ResponseDynamics>(content);
-                        return responseDynamics;
-                    }
-                    {
-                        // Handle the error response here
-                        var emex = new ErrorDetails()
-                        {
-                            StatusCode = 400,
-                            Message = "Error:  " + "The Token could not be generated"
-                        };
-                        return BadRequest(new JsonResult(emex));
-                    }
-                }
-                catch (Exception ex)
-                {
+                    // Handle the error response here
                     var emex = new ErrorDetails()
                     {
                         StatusCode = 400,
-                        Message = "Error:  " + ex.Message.ToString()
+                        Message = "Error:  " + "The Token could not be generated"
                     };
                     return BadRequest(new JsonResult(emex));
                 }
+                return resultado;
 
             }
             catch (Exception ex)
@@ -92,7 +65,71 @@ namespace ApiConsultantAIMaven.Controllers
             }
 
         }
+        [HttpPost("SaveLead")]
+        [AllowAnonymous]
+        public async Task<ActionResult<bool>> SaveLead(LeadDynamic pet)
+        {
+            ResponseDynamics resultado = new ResponseDynamics();
+            try
+            {
+                string apiUrl = ConfigValues.seleccionarConfigValue("URLApiSaveLead", _ConnectionString.GetConnectionString("DefaultConnection"));
+                DynamicDal dynami = new DynamicDal(_ConnectionString.GetConnectionString("DefaultConnection"));
+                resultado = await dynami.GetToken(_httpClient);
+                if (String.IsNullOrEmpty(resultado.access_token))
+                {
+                    // Handle the error response here
+                    var emex = new ErrorDetails()
+                    {
+                        StatusCode = 400,
+                        Message = "Error:  " + "The Token could not be generated"
+                    };
+                    return BadRequest(new JsonResult(emex));
+                }
+                string bearerToken = resultado.access_token;
+                using (var httpClient = new HttpClient())
+                {
+                    // Configurar el encabezado de autorización Bearer
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
 
+                    // Serializar el objeto Contact a JSON
+                    string jsonContent = JsonConvert.SerializeObject(pet);
+
+                    // Configurar el contenido de la solicitud POST
+                    var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                    // Realizar la solicitud POST al servicio
+                    HttpResponseMessage response = await httpClient.PostAsync(apiUrl, content);
+
+                    // Verificar si la solicitud fue exitosa (código de estado HTTP 200 OK)
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // La solicitud se completó con éxito
+                        return true;
+                    }
+                    else
+                    {
+                        // La solicitud falló
+                        Console.WriteLine($"Error: {response.StatusCode}");
+                        var emex = new ErrorDetails()
+                        {
+                            StatusCode = 400,
+                            Message = "Error:  " + response.StatusCode
+                        };
+                        return BadRequest(new JsonResult(emex));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                var emex = new ErrorDetails()
+                {
+                    StatusCode = 400,
+                    Message = "Error:  " + ex.Message.ToString()
+                };
+                return BadRequest(new JsonResult(emex));
+            }
+        }
 
 
     }
