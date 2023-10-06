@@ -17,7 +17,9 @@ using OpenAI_API.Completions;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using static EntregasLogyTechSharedModel.FineTune.FineTuneResponseModel;
 
@@ -42,8 +44,11 @@ namespace ApiConsultantAIMaven.Controllers
         public async Task<ActionResult<Answer>> UseChatGPT(Chat query)
         {
             Answer result = new Answer();
+            QuestionClass questionData = new QuestionClass();
+            questionData.question = query.Message;
+            string jsonContent = JsonConvert.SerializeObject(questionData);
+            string url = ConfigValues.seleccionarConfigValue("URLChatcanvas", _ConnectionString.GetConnectionString("DefaultConnection"));
 
-            string fineTuneModel = string.Empty;
             var identity = (ClaimsIdentity)User.Identity;
             var claims = identity.FindFirst(c => c.Type == "IdUsuario");
             var idUsuario = Convert.ToInt32(claims.Value);
@@ -56,79 +61,35 @@ namespace ApiConsultantAIMaven.Controllers
                 };
                 return new JsonResult(em);
             }
-
             try
             {
-                Root resultado = new Root();
-                FineTunesDal ftd = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
-                resultado = await ftd.GetTrainingLog();
-
                 using (var httpClient = new HttpClient())
                 {
-                    using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.openai.com/v1/fine-tunes/" + resultado.id))
+                    // Configurar el encabezado de contenido JSON
+                    httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+                    var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                    // Enviar la solicitud POST al servicio
+                    HttpResponseMessage response = await httpClient.PostAsync(url, content);
+                    // Verificar si la solicitud fue exitosa (código de estado HTTP 200 OK)
+                    if (response.IsSuccessStatusCode)
                     {
-                        request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
-
-                        var response = await httpClient.SendAsync(request);
-                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        // Leer la respuesta como cadena JSON
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        ChatDALL chat = new ChatDALL(_ConnectionString.GetConnectionString("DefaultConnection"));
+                        await chat.InsertConversation(query, idUsuario, responseContent);
+                        result.answer = responseContent;
+                        return result;
+                    }
+                    else
+                    {
+                        var emex = new ErrorDetails()
                         {
-                            var respuestaString = response.Content.ReadAsStringAsync();
-                            var data = JsonConvert.DeserializeObject<Root>(respuestaString.Result.ToString());
-                            if (data.fine_tuned_model == null)
-                            {
-                                var emex = new ErrorDetails()
-                                {
-                                    StatusCode = 400,
-                                    Message = "No available trained model found"
-                                };
-                                return BadRequest(new JsonResult(emex));
-                            }
-                            else
-                            {
-                                fineTuneModel = data.fine_tuned_model.ToString();
-
-                            }
-
-                        }
+                            StatusCode = 400,
+                            Message = "a conversation could not be established"
+                        };
+                        return BadRequest(new JsonResult(emex));
                     }
                 }
-
-                string respuestas = string.Empty;
-
-
-                if (fineTuneModel != null)
-                {
-                    var openai = new OpenAIAPI(apiKey);
-                    CompletionRequest completion = new CompletionRequest();
-                    completion.Prompt = query.Message;
-                    completion.Model = fineTuneModel;
-                    var respuesta = openai.Completions.CreateCompletionAsync(completion);
-                    foreach (var complet in respuesta.Result.Completions)
-                    {
-                        if (respuestas == null || respuestas == "")
-                        {
-                            respuestas = complet.Text;
-                        }
-                        else
-                        {
-                            respuestas = respuestas + " " + complet.Text;
-                        }
-                    }
-                    ChatDALL chat = new ChatDALL(_ConnectionString.GetConnectionString("DefaultConnection"));
-                    await chat.InsertConversation(query, idUsuario, respuestas);
-                    result.answer = respuestas;
-                    return result;
-                }
-                else
-                {
-                    var emex = new ErrorDetails()
-                    {
-                        StatusCode = 400,
-                        Message = "No se encontró modelo activo"
-                    };
-                    return BadRequest(new JsonResult(emex));
-                }
-
             }
             catch (Exception ex)
             {
@@ -139,8 +100,111 @@ namespace ApiConsultantAIMaven.Controllers
                 };
                 return BadRequest(new JsonResult(emex));
             }
-
         }
+
+
+        //public async Task<ActionResult<Answer>> UseChatGPT(Chat query)
+        //{
+        //    Answer result = new Answer();
+
+        //    string fineTuneModel = string.Empty;
+        //    var identity = (ClaimsIdentity)User.Identity;
+        //    var claims = identity.FindFirst(c => c.Type == "IdUsuario");
+        //    var idUsuario = Convert.ToInt32(claims.Value);
+        //    if (idUsuario <= 0)
+        //    {
+        //        var em = new ErrorDetails()
+        //        {
+        //            StatusCode = 400,
+        //            Message = "Error: The user is not authorized "
+        //        };
+        //        return new JsonResult(em);
+        //    }
+
+        //    try
+        //    {
+        //        Root resultado = new Root();
+        //        FineTunesDal ftd = new FineTunesDal(_ConnectionString.GetConnectionString("DefaultConnection"));
+        //        resultado = await ftd.GetTrainingLog();
+
+        //        using (var httpClient = new HttpClient())
+        //        {
+        //            using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.openai.com/v1/fine-tunes/" + resultado.id))
+        //            {
+        //                request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + apiKey);
+
+        //                var response = await httpClient.SendAsync(request);
+        //                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+        //                {
+        //                    var respuestaString = response.Content.ReadAsStringAsync();
+        //                    var data = JsonConvert.DeserializeObject<Root>(respuestaString.Result.ToString());
+        //                    if (data.fine_tuned_model == null)
+        //                    {
+        //                        var emex = new ErrorDetails()
+        //                        {
+        //                            StatusCode = 400,
+        //                            Message = "No available trained model found"
+        //                        };
+        //                        return BadRequest(new JsonResult(emex));
+        //                    }
+        //                    else
+        //                    {
+        //                        fineTuneModel = data.fine_tuned_model.ToString();
+
+        //                    }
+
+        //                }
+        //            }
+        //        }
+
+        //        string respuestas = string.Empty;
+
+
+        //        if (fineTuneModel != null)
+        //        {
+        //            var openai = new OpenAIAPI(apiKey);
+        //            CompletionRequest completion = new CompletionRequest();
+        //            completion.Prompt = query.Message;
+        //            completion.Model = fineTuneModel;
+        //            var respuesta = openai.Completions.CreateCompletionAsync(completion);
+        //            foreach (var complet in respuesta.Result.Completions)
+        //            {
+        //                if (respuestas == null || respuestas == "")
+        //                {
+        //                    respuestas = complet.Text;
+        //                }
+        //                else
+        //                {
+        //                    respuestas = respuestas + " " + complet.Text;
+        //                }
+        //            }
+        //            ChatDALL chat = new ChatDALL(_ConnectionString.GetConnectionString("DefaultConnection"));
+        //            await chat.InsertConversation(query, idUsuario, respuestas);
+        //            result.answer = respuestas;
+        //            return result;
+        //        }
+        //        else
+        //        {
+        //            var emex = new ErrorDetails()
+        //            {
+        //                StatusCode = 400,
+        //                Message = "No se encontró modelo activo"
+        //            };
+        //            return BadRequest(new JsonResult(emex));
+        //        }
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var emex = new ErrorDetails()
+        //        {
+        //            StatusCode = 400,
+        //            Message = "Error:  " + ex.Message.ToString()
+        //        };
+        //        return BadRequest(new JsonResult(emex));
+        //    }
+
+        //}
 
         [HttpGet("GetAllChat")]
         //[AllowAnonymous]
