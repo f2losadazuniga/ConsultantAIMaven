@@ -13,7 +13,7 @@ namespace EntregasLogyTechSharedModel.Conversation
 
         [Required(ErrorMessage = "message required")]
         public string Message { get; set; }
-
+        public int Estado { get; set; } = 1;
         public Chat()
         {
             Email = string.Empty;

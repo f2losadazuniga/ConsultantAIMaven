@@ -41,13 +41,22 @@ namespace ApiConsultantAIMaven.Controllers
 
         [HttpPost("UseChatGPT")]
         //[AllowAnonymous]
-        public async Task<ActionResult<Answer>> UseChatGPT(Chat query)
+        public async Task<ActionResult<Answer>> UseChatGPT(Chat query )
         {
             Answer result = new Answer();
             QuestionClass questionData = new QuestionClass();
             questionData.question = query.Message;
             string jsonContent = JsonConvert.SerializeObject(questionData);
-            string url = ConfigValues.seleccionarConfigValue("URLApiChatcanvas", _ConnectionString.GetConnectionString("DefaultConnection"));
+            string url = ConfigValues.seleccionarConfigValue("URLApiChatcanvas" + query.Estado.ToString(), _ConnectionString.GetConnectionString("DefaultConnection"));
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                var em = new ErrorDetails()
+                {
+                    StatusCode = 400,
+                    Message = "Error: Could not set the url to start the conversation "
+                };
+                return new JsonResult(em);
+            }
 
             var identity = (ClaimsIdentity)User.Identity;
             var claims = identity.FindFirst(c => c.Type == "IdUsuario");
