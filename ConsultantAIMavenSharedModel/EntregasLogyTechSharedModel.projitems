@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Conversation\QuestionClass.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Conversation\RecordReaction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Customer\Customer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamic\RelationshipLeadOportunity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamic\DynamicOpportunities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamic\LeadDynamic.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamic\ResponseDynamics.cs" />

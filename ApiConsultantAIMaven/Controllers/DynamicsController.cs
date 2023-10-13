@@ -306,5 +306,69 @@ namespace ApiConsultantAIMaven.Controllers
                 return BadRequest(new JsonResult(emex));
             }
         }
+        [HttpPost("RelationshipLeadOportunity")]
+        [AllowAnonymous]
+        public async Task<ActionResult<bool>> RelationshipLeadOportunity(RelationshipLeadOportunity pet, string opportunityId)
+        {
+            ResponseDynamics resultado = new ResponseDynamics();
+            try
+            {
+                string apiUrl = ConfigValues.seleccionarConfigValue("URLApiRelationshipLeadOportunity", _ConnectionString.GetConnectionString("DefaultConnection"));
+                DynamicDal dynami = new DynamicDal(_ConnectionString.GetConnectionString("DefaultConnection"));
+                resultado = await dynami.GetToken(_httpClient);
+                if (String.IsNullOrEmpty(resultado.access_token))
+                {
+                    // Handle the error response here
+                    var emex = new ErrorDetails()
+                    {
+                        StatusCode = 400,
+                        Message = "Error:  " + "The Token could not be generated"
+                    };
+                    return BadRequest(new JsonResult(emex));
+                }
+                string requestUrl = $"opportunities({opportunityId})/Microsoft.Dynamics.CRM.associate";
+                string bearerToken = resultado.access_token;
+                using (var httpClient = new HttpClient())
+                {
+                    // Configurar el encabezado de autorización Bearer
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+                    // Serializar el objeto Contact a JSON
+                    string jsonContent = JsonConvert.SerializeObject(pet);
+                    // Configurar el contenido de la solicitud POST
+                    var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                    // Realizar la solicitud POST al servicio
+                    HttpResponseMessage response = await httpClient.PostAsync(apiUrl, content);
+                    // Verificar si la solicitud fue exitosa (código de estado HTTP 200 OK)
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // La solicitud se completó con éxito
+                        return true;
+                    }
+                    else
+                    {
+                        // La solicitud falló
+                        Console.WriteLine($"Error: {response.StatusCode}");
+                        var emex = new ErrorDetails()
+                        {
+                            StatusCode = 400,
+                            Message = "Error:  " + response.StatusCode
+                        };
+                        return BadRequest(new JsonResult(emex));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                var emex = new ErrorDetails()
+                {
+                    StatusCode = 400,
+                    Message = "Error:  " + ex.Message.ToString()
+                };
+                return BadRequest(new JsonResult(emex));
+            }
+        }
+
+
     }
 }
