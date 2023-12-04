@@ -84,6 +84,7 @@ namespace ApiConsultantAIMaven.Controllers
                     {
                         // Leer la respuesta como cadena JSON
                         string responseContent = await response.Content.ReadAsStringAsync();
+                        responseContent = responseContent.Replace("\"","");
                         ChatDALL chat = new ChatDALL(_ConnectionString.GetConnectionString("DefaultConnection"));
                         await chat.InsertConversation(query, idUsuario, responseContent);
                         result.answer = responseContent;
